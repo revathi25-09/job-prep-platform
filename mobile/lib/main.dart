@@ -821,22 +821,6 @@ class _LoginFormState extends State<LoginForm> {
             ],
           ),
         ),
-        const SizedBox(height: 38),
-        const OrDivider(),
-        const SizedBox(height: 25),
-        SocialLoginButton(
-          icon: 'G',
-          iconColor: const Color(0xFF4285F4),
-          text: 'Continue with Google',
-          onPressed: () {},
-        ),
-        const SizedBox(height: 14),
-        SocialLoginButton(
-          icon: 'A',
-          iconColor: Colors.black,
-          text: 'Continue with Apple',
-          onPressed: () {},
-        ),
         const SizedBox(height: 35),
         const Row(
           mainAxisAlignment: MainAxisAlignment.center,
