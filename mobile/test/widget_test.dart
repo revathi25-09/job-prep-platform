@@ -1,97 +1,508 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile/main.dart';
 
 void main() {
-  testWidgets('PrepLoop login page loads correctly', (
-    WidgetTester tester,
-  ) async {
-    // Build the PrepLoop application.
-    await tester.pumpWidget(const PrepLoopApp());
+  group('PrepLoop Authentication Tests', () {
+    // ========================================================================
+    // TEST 1: LOGIN PAGE
+    // ========================================================================
 
-    // Verify the PrepLoop branding is displayed.
-    expect(find.text('PrepLoop'), findsOneWidget);
+    testWidgets(
+      'Login page loads correctly',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
 
-    // Verify the main marketing content.
-    expect(find.text('Build Skills.'), findsOneWidget);
-    expect(find.text('Ace Interviews.'), findsOneWidget);
-    expect(find.text('Launch Your Career.'), findsOneWidget);
+        expect(find.text('PrepLoop'), findsOneWidget);
 
-    // Verify the login content.
-    expect(find.text('Welcome Back!'), findsOneWidget);
-    expect(
-      find.text('Login to continue your learning journey'),
-      findsOneWidget,
+        expect(find.text('Build Skills.'), findsOneWidget);
+        expect(find.text('Ace Interviews.'), findsOneWidget);
+        expect(find.text('Launch Your Career.'), findsOneWidget);
+
+        expect(
+          find.text(
+            'PrepLoop is your all-in-one platform to prepare, '
+            'practice and get placed in your dream job.',
+          ),
+          findsOneWidget,
+        );
+
+        expect(find.text('Welcome Back!'), findsOneWidget);
+
+        expect(
+          find.text(
+            'Login to continue your learning journey',
+          ),
+          findsOneWidget,
+        );
+
+        expect(find.text('Email Address'), findsOneWidget);
+        expect(find.text('Password'), findsOneWidget);
+
+        expect(find.text('Forgot Password?'), findsOneWidget);
+        expect(find.text('Remember me'), findsOneWidget);
+
+        expect(
+          find.widgetWithText(
+            ElevatedButton,
+            'Login',
+          ),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Continue with Google'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Continue with Apple'),
+          findsOneWidget,
+        );
+
+        expect(find.text('New here?'), findsOneWidget);
+
+        expect(
+          find.widgetWithText(
+            TextButton,
+            'Register',
+          ),
+          findsOneWidget,
+        );
+      },
     );
 
-    // Verify login fields.
-    expect(find.text('Email Address'), findsOneWidget);
-    expect(find.text('Password'), findsOneWidget);
+    // ========================================================================
+    // TEST 2: LOGIN -> REGISTER
+    // ========================================================================
 
-    // Verify login actions.
-    expect(find.text('Login'), findsOneWidget);
-    expect(find.text('Forgot Password?'), findsOneWidget);
-    expect(find.text('Remember me'), findsOneWidget);
+    testWidgets(
+      'Register page opens when Register is clicked',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
 
-    // Verify social login options.
-    expect(find.text('Continue with Google'), findsOneWidget);
-    expect(find.text('Continue with Apple'), findsOneWidget);
+        expect(
+          find.text('Welcome Back!'),
+          findsOneWidget,
+        );
 
-    // Verify registration link.
-    expect(find.text('New here?'), findsOneWidget);
-    expect(find.text('Register'), findsOneWidget);
-  });
+        final Finder registerButton = find.widgetWithText(
+          TextButton,
+          'Register',
+        );
 
-  testWidgets('Register page opens when Register is clicked', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const PrepLoopApp());
+        expect(
+          registerButton,
+          findsOneWidget,
+        );
 
-    // Verify we start on the login page.
-    expect(find.text('Welcome Back!'), findsOneWidget);
+        await _makeVisible(
+          tester,
+          registerButton,
+        );
 
-    // Click Register.
-    await tester.tap(find.text('Register'));
-    await tester.pumpAndSettle();
+        await tester.tap(
+          registerButton,
+        );
 
-    // Verify registration page is displayed.
-    expect(find.text('Create Account'), findsOneWidget);
-    expect(
-      find.text(
-        'Create your PrepLoop account and start your journey.',
-      ),
-      findsOneWidget,
+        await tester.pumpAndSettle();
+
+        // Heading + button.
+        expect(
+          find.text('Create Account'),
+          findsNWidgets(2),
+        );
+
+        expect(
+          find.text(
+            'Create your PrepLoop account and start your journey.',
+          ),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Full Name'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Email Address'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Password'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Confirm Password'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.widgetWithText(
+            ElevatedButton,
+            'Create Account',
+          ),
+          findsOneWidget,
+        );
+
+        expect(
+          find.widgetWithText(
+            TextButton,
+            'Login',
+          ),
+          findsOneWidget,
+        );
+      },
     );
 
-    // Verify registration fields.
-    expect(find.text('Full Name'), findsOneWidget);
-    expect(find.text('Email Address'), findsOneWidget);
-    expect(find.text('Password'), findsOneWidget);
-    expect(find.text('Confirm Password'), findsOneWidget);
+    // ========================================================================
+    // TEST 3: REGISTER -> LOGIN
+    // ========================================================================
 
-    // Verify registration button.
-    expect(find.text('Create Account'), findsOneWidget);
+    testWidgets(
+      'Login page opens from Register page',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
 
-    // Verify login link.
-    expect(find.text('Login'), findsOneWidget);
+        final Finder registerButton = find.widgetWithText(
+          TextButton,
+          'Register',
+        );
+
+        expect(
+          registerButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          registerButton,
+        );
+
+        await tester.tap(
+          registerButton,
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Create Account'),
+          findsNWidgets(2),
+        );
+
+        expect(
+          find.text('Full Name'),
+          findsOneWidget,
+        );
+
+        final Finder loginButton = find.widgetWithText(
+          TextButton,
+          'Login',
+        );
+
+        expect(
+          loginButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          loginButton,
+        );
+
+        await tester.tap(
+          loginButton,
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Welcome Back!'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text(
+            'Login to continue your learning journey',
+          ),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Email Address'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Password'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ========================================================================
+    // TEST 4: LOGIN VALIDATION
+    // ========================================================================
+
+    testWidgets(
+      'Login form validates empty fields',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
+
+        final Finder loginButton = find.widgetWithText(
+          ElevatedButton,
+          'Login',
+        );
+
+        expect(
+          loginButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          loginButton,
+        );
+
+        await tester.tap(
+          loginButton,
+        );
+
+        await tester.pump();
+
+        expect(
+          find.text('Email is required'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Password is required'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ========================================================================
+    // TEST 5: REGISTER VALIDATION
+    // ========================================================================
+
+    testWidgets(
+      'Register form validates empty fields',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
+
+        final Finder registerButton = find.widgetWithText(
+          TextButton,
+          'Register',
+        );
+
+        expect(
+          registerButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          registerButton,
+        );
+
+        await tester.tap(
+          registerButton,
+        );
+
+        await tester.pumpAndSettle();
+
+        final Finder createAccountButton = find.widgetWithText(
+          ElevatedButton,
+          'Create Account',
+        );
+
+        expect(
+          createAccountButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          createAccountButton,
+        );
+
+        await tester.tap(
+          createAccountButton,
+        );
+
+        await tester.pump();
+
+        expect(
+          find.text('Name is required'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Email is required'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Password is required'),
+          findsOneWidget,
+        );
+
+        expect(
+          find.text('Please confirm your password'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    // ========================================================================
+    // TEST 6: PASSWORD MISMATCH
+    // ========================================================================
+
+    testWidgets(
+      'Register form detects password mismatch',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(const PrepLoopApp());
+        await tester.pumpAndSettle();
+
+        // --------------------------------------------------------------------
+        // Open register page.
+        // --------------------------------------------------------------------
+
+        final Finder registerButton = find.widgetWithText(
+          TextButton,
+          'Register',
+        );
+
+        expect(
+          registerButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          registerButton,
+        );
+
+        await tester.tap(
+          registerButton,
+        );
+
+        await tester.pumpAndSettle();
+
+        // --------------------------------------------------------------------
+        // Make sure all four fields exist BEFORE using .at().
+        // --------------------------------------------------------------------
+
+        final Finder fields = find.byType(TextFormField);
+
+        expect(
+          fields,
+          findsNWidgets(4),
+        );
+
+        // --------------------------------------------------------------------
+        // FIELD 0 = Full Name
+        // FIELD 1 = Email
+        // FIELD 2 = Password
+        // FIELD 3 = Confirm Password
+        // --------------------------------------------------------------------
+
+        await tester.enterText(
+          fields.at(0),
+          'Test User',
+        );
+
+        await tester.enterText(
+          fields.at(1),
+          'test@example.com',
+        );
+
+        await tester.enterText(
+          fields.at(2),
+          'password123',
+        );
+
+        await tester.enterText(
+          fields.at(3),
+          'different123',
+        );
+
+        await tester.pump();
+
+        // --------------------------------------------------------------------
+        // Find Create Account button.
+        // --------------------------------------------------------------------
+
+        final Finder createAccountButton = find.widgetWithText(
+          ElevatedButton,
+          'Create Account',
+        );
+
+        expect(
+          createAccountButton,
+          findsOneWidget,
+        );
+
+        await _makeVisible(
+          tester,
+          createAccountButton,
+        );
+
+        await tester.tap(
+          createAccountButton,
+        );
+
+        await tester.pump();
+
+        // --------------------------------------------------------------------
+        // Password mismatch must be displayed.
+        // --------------------------------------------------------------------
+
+        expect(
+          find.text('Passwords do not match'),
+          findsOneWidget,
+        );
+      },
+    );
   });
+}
 
-  testWidgets('Login page opens from Register page', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const PrepLoopApp());
+// ============================================================================
+// SAFE SCROLL HELPER
+// ============================================================================
+//
+// This uses Flutter's own ensureVisible() instead of manually selecting
+// a SingleChildScrollView.
+//
+// That is important because the app can contain more than one scrollable
+// widget on mobile/test layouts.
+//
+// ============================================================================
 
-    // Open Register page.
-    await tester.tap(find.text('Register'));
+Future<void> _makeVisible(
+  WidgetTester tester,
+  Finder finder,
+) async {
+  if (finder.evaluate().isEmpty) {
+    return;
+  }
+
+  try {
+    await tester.ensureVisible(
+      finder.first,
+    );
+
     await tester.pumpAndSettle();
-
-    expect(find.text('Create Account'), findsOneWidget);
-
-    // Go back to Login.
-    await tester.tap(find.text('Login'));
-    await tester.pumpAndSettle();
-
-    // Verify login page is displayed.
-    expect(find.text('Welcome Back!'), findsOneWidget);
-    expect(find.text('Login to continue your learning journey'), findsOneWidget);
-  });
+  } catch (_) {
+    // If the widget is already visible, there is nothing else to do.
+  }
 }
