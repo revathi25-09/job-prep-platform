@@ -107,6 +107,7 @@ class _AuthPageState extends State<AuthPage>
           }
 
           return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Expanded(
                 flex: 11,
@@ -155,11 +156,8 @@ class _AuthPageState extends State<AuthPage>
     return SingleChildScrollView(
       child: Column(
         children: [
-          Container(
-            constraints: const BoxConstraints(
-              minHeight: 650,
-            ),
-            child: const LeftMarketingPanel(),
+          const LeftMarketingPanel(
+            mobile: true,
           ),
           Container(
             width: double.infinity,
@@ -187,12 +185,22 @@ class _AuthPageState extends State<AuthPage>
 // ============================================================================
 
 class LeftMarketingPanel extends StatelessWidget {
-  const LeftMarketingPanel({super.key});
+  final bool mobile;
+
+  const LeftMarketingPanel({
+    super.key,
+    this.mobile = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      constraints: mobile
+          ? const BoxConstraints(
+              minHeight: 650,
+            )
+          : null,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -222,16 +230,22 @@ class LeftMarketingPanel extends StatelessWidget {
               color: const Color(0xFFAAA7FF),
             ),
           ),
+
+          // IMPORTANT:
+          // Scrollable content prevents RenderFlex overflow.
           SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(
                 horizontal: 40,
                 vertical: 35,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
+                  // ----------------------------------------------------------------
+                  // LOGO
+                  // ----------------------------------------------------------------
+
                   Row(
                     children: [
                       Container(
@@ -267,7 +281,13 @@ class LeftMarketingPanel extends StatelessWidget {
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 45),
+
+                  // ----------------------------------------------------------------
+                  // MAIN HEADING
+                  // ----------------------------------------------------------------
+
                   const Text(
                     'Build Skills.',
                     style: TextStyle(
@@ -278,6 +298,7 @@ class LeftMarketingPanel extends StatelessWidget {
                       letterSpacing: -1.5,
                     ),
                   ),
+
                   const Text(
                     'Ace Interviews.',
                     style: TextStyle(
@@ -288,6 +309,7 @@ class LeftMarketingPanel extends StatelessWidget {
                       letterSpacing: -1.5,
                     ),
                   ),
+
                   const Text.rich(
                     TextSpan(
                       children: [
@@ -314,7 +336,9 @@ class LeftMarketingPanel extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 22),
+
                   const Text(
                     'PrepLoop is your all-in-one platform to prepare, '
                     'practice and get placed in your dream job.',
@@ -324,33 +348,55 @@ class LeftMarketingPanel extends StatelessWidget {
                       height: 1.55,
                     ),
                   ),
+
                   const SizedBox(height: 32),
+
+                  // ----------------------------------------------------------------
+                  // FEATURES
+                  // ----------------------------------------------------------------
+
                   const FeatureItem(
                     icon: Icons.menu_book_rounded,
                     title: 'Expert Learning',
                     description:
                         'Learn from industry experts and master in-demand skills.',
                   ),
+
                   const SizedBox(height: 18),
+
                   const FeatureItem(
                     icon: Icons.track_changes_rounded,
                     title: 'Practice & Improve',
                     description:
                         'Solve real interview questions and improve with instant feedback.',
                   ),
+
                   const SizedBox(height: 18),
+
                   const FeatureItem(
                     icon: Icons.work_outline_rounded,
                     title: 'Get Placed',
                     description:
                         'Apply to top companies and kickstart your career.',
                   ),
+
                   const SizedBox(height: 30),
+
+                  // ----------------------------------------------------------------
+                  // ILLUSTRATION
+                  // ----------------------------------------------------------------
+
                   const Align(
                     alignment: Alignment.centerRight,
                     child: _FallbackIllustration(),
                   ),
+
                   const SizedBox(height: 15),
+
+                  // ----------------------------------------------------------------
+                  // STUDENT TRUST CARD
+                  // ----------------------------------------------------------------
+
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 18,
@@ -403,6 +449,8 @@ class LeftMarketingPanel extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -503,24 +551,18 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController =
+      TextEditingController();
+
+  final TextEditingController _passwordController =
+      TextEditingController();
 
   bool _obscurePassword = true;
   bool _rememberMe = false;
   bool _loading = false;
 
-  // --------------------------------------------------------------------------
-  // BACKEND URL
-  //
-  // For Flutter Web/Desktop:
-  // localhost normally works when your backend is running on this computer.
-  //
-  // For Android Emulator:
-  // use 10.0.2.2 instead of localhost.
-  // --------------------------------------------------------------------------
-
-  static const String _loginUrl = 'http://localhost:5000/login';
+  static const String baseUrl =
+      'http://localhost:5000';
 
   @override
   void dispose() {
@@ -528,6 +570,10 @@ class _LoginFormState extends State<LoginForm> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  // --------------------------------------------------------------------------
+  // LOGIN
+  // --------------------------------------------------------------------------
 
   Future<void> _login() async {
     FocusScope.of(context).unfocus();
@@ -563,23 +609,24 @@ class _LoginFormState extends State<LoginForm> {
         _loading = false;
       });
 
-      final Map<String, dynamic> data = _decodeResponse(response.body);
+      final Map<String, dynamic> data =
+          _decodeResponse(response.body);
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
         _showMessage(
-          data['message']?.toString() ?? 'Login successful!',
+          data['message']?.toString() ??
+              'Login successful!',
         );
         return;
       }
 
-      // IMPORTANT:
-      // Show the actual backend response instead of hiding it
-      // behind only "Login failed".
-      final String message = data['message']?.toString().isNotEmpty == true
-          ? data['message'].toString()
-          : response.body.isNotEmpty
-              ? response.body
-              : 'Server returned status ${response.statusCode}.';
+      final String message =
+          data['message']?.toString().isNotEmpty == true
+              ? data['message'].toString()
+              : response.body.isNotEmpty
+                  ? response.body
+                  : 'Server returned status ${response.statusCode}.';
 
       _showMessage(
         'Login failed (${response.statusCode}): $message',
@@ -649,6 +696,10 @@ class _LoginFormState extends State<LoginForm> {
       );
   }
 
+  // --------------------------------------------------------------------------
+  // BUILD
+  // --------------------------------------------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -681,7 +732,9 @@ class _LoginFormState extends State<LoginForm> {
             ],
           ),
         ),
+
         const SizedBox(height: 35),
+
         const Text(
           'Welcome Back!',
           style: TextStyle(
@@ -691,7 +744,9 @@ class _LoginFormState extends State<LoginForm> {
             letterSpacing: -1,
           ),
         ),
+
         const SizedBox(height: 8),
+
         const Text(
           'Login to continue your learning journey',
           style: TextStyle(
@@ -699,7 +754,9 @@ class _LoginFormState extends State<LoginForm> {
             fontSize: 15,
           ),
         ),
+
         const SizedBox(height: 42),
+
         Form(
           key: _formKey,
           child: Column(
@@ -708,14 +765,17 @@ class _LoginFormState extends State<LoginForm> {
               const AuthLabel(
                 text: 'Email Address',
               ),
+
               const SizedBox(height: 9),
+
               AuthTextField(
                 controller: _emailController,
                 hintText: 'Enter your email',
                 icon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null ||
+                      value.trim().isEmpty) {
                     return 'Email is required';
                   }
 
@@ -728,15 +788,22 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 27),
+
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
                 children: [
                   const AuthLabel(
                     text: 'Password',
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _showMessage(
+                        'Password reset will be available soon.',
+                      );
+                    },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.zero,
                     ),
@@ -751,7 +818,9 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 9),
+
               AuthTextField(
                 controller: _passwordController,
                 hintText: 'Enter your password',
@@ -760,7 +829,8 @@ class _LoginFormState extends State<LoginForm> {
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
-                      _obscurePassword = !_obscurePassword;
+                      _obscurePassword =
+                          !_obscurePassword;
                     });
                   },
                   icon: Icon(
@@ -772,7 +842,8 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null ||
+                      value.isEmpty) {
                     return 'Password is required';
                   }
 
@@ -783,7 +854,9 @@ class _LoginFormState extends State<LoginForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 13),
+
               Row(
                 children: [
                   SizedBox(
@@ -791,18 +864,23 @@ class _LoginFormState extends State<LoginForm> {
                     height: 22,
                     child: Checkbox(
                       value: _rememberMe,
-                      activeColor: const Color(0xFF4F46E5),
+                      activeColor:
+                          const Color(0xFF4F46E5),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
+                        borderRadius:
+                            BorderRadius.circular(5),
                       ),
                       onChanged: (value) {
                         setState(() {
-                          _rememberMe = value ?? false;
+                          _rememberMe =
+                              value ?? false;
                         });
                       },
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
                   const Text(
                     'Remember me',
                     style: TextStyle(
@@ -812,7 +890,9 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 25),
+
               PrimaryButton(
                 text: 'Login',
                 loading: _loading,
@@ -821,7 +901,30 @@ class _LoginFormState extends State<LoginForm> {
             ],
           ),
         ),
+
+        const SizedBox(height: 25),
+
+        // ----------------------------------------------------------------------
+        // GOOGLE LOGIN
+        // ----------------------------------------------------------------------
+
+        const OrDivider(),
+
+        const SizedBox(height: 25),
+
+        SocialLoginButton(
+          icon: 'G',
+          iconColor: Colors.red,
+          text: 'Continue with Google',
+          onPressed: () {
+            _showMessage(
+              'Google login will be available soon.',
+            );
+          },
+        ),
+
         const SizedBox(height: 35),
+
         const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -858,23 +961,33 @@ class RegisterForm extends StatefulWidget {
   });
 
   @override
-  State<RegisterForm> createState() => _RegisterFormState();
+  State<RegisterForm> createState() =>
+      _RegisterFormState();
 }
 
 class _RegisterFormState extends State<RegisterForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>();
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
+  final TextEditingController _nameController =
+      TextEditingController();
+
+  final TextEditingController _emailController =
+      TextEditingController();
+
+  final TextEditingController _passwordController =
+      TextEditingController();
+
+  final TextEditingController
+      _confirmPasswordController =
       TextEditingController();
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _loading = false;
 
-  static const String _registerUrl = 'http://localhost:5000/register';
+  static const String _registerUrl =
+      'http://localhost:5000/register';
 
   @override
   void dispose() {
@@ -884,6 +997,10 @@ class _RegisterFormState extends State<RegisterForm> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
+
+  // --------------------------------------------------------------------------
+  // REGISTER
+  // --------------------------------------------------------------------------
 
   Future<void> _register() async {
     FocusScope.of(context).unfocus();
@@ -920,12 +1037,14 @@ class _RegisterFormState extends State<RegisterForm> {
         _loading = false;
       });
 
-      final Map<String, dynamic> data = _decodeResponse(response.body);
+      final Map<String, dynamic> data =
+          _decodeResponse(response.body);
 
       if (response.statusCode >= 200 &&
           response.statusCode < 300) {
         _showMessage(
-          data['message']?.toString() ?? 'Registration successful!',
+          data['message']?.toString() ??
+              'Registration successful!',
         );
 
         Future.delayed(
@@ -1015,10 +1134,15 @@ class _RegisterFormState extends State<RegisterForm> {
       );
   }
 
+  // --------------------------------------------------------------------------
+  // BUILD
+  // --------------------------------------------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment:
+          CrossAxisAlignment.stretch,
       children: [
         Align(
           alignment: Alignment.centerRight,
@@ -1045,9 +1169,9 @@ class _RegisterFormState extends State<RegisterForm> {
             ],
           ),
         ),
+
         const SizedBox(height: 30),
 
-        // Kept exactly as expected by your current tests.
         const Text(
           'Create Account',
           style: TextStyle(
@@ -1059,6 +1183,7 @@ class _RegisterFormState extends State<RegisterForm> {
         ),
 
         const SizedBox(height: 8),
+
         const Text(
           'Create your PrepLoop account and start your journey.',
           style: TextStyle(
@@ -1067,23 +1192,30 @@ class _RegisterFormState extends State<RegisterForm> {
             height: 1.4,
           ),
         ),
+
         const SizedBox(height: 32),
+
         Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch,
             children: [
               const AuthLabel(
                 text: 'Full Name',
               ),
+
               const SizedBox(height: 8),
+
               AuthTextField(
                 controller: _nameController,
                 hintText: 'Enter your full name',
                 icon: Icons.person_outline_rounded,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null ||
+                      value.trim().isEmpty) {
                     return 'Name is required';
                   }
 
@@ -1094,18 +1226,24 @@ class _RegisterFormState extends State<RegisterForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
+
               const AuthLabel(
                 text: 'Email Address',
               ),
+
               const SizedBox(height: 8),
+
               AuthTextField(
                 controller: _emailController,
                 hintText: 'Enter your email',
                 icon: Icons.mail_outline_rounded,
-                keyboardType: TextInputType.emailAddress,
+                keyboardType:
+                    TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null ||
+                      value.trim().isEmpty) {
                     return 'Email is required';
                   }
 
@@ -1118,11 +1256,15 @@ class _RegisterFormState extends State<RegisterForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
+
               const AuthLabel(
                 text: 'Password',
               ),
+
               const SizedBox(height: 8),
+
               AuthTextField(
                 controller: _passwordController,
                 hintText: 'Create a password',
@@ -1131,18 +1273,21 @@ class _RegisterFormState extends State<RegisterForm> {
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
-                      _obscurePassword = !_obscurePassword;
+                      _obscurePassword =
+                          !_obscurePassword;
                     });
                   },
                   icon: Icon(
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: const Color(0xFF667085),
+                    color:
+                        const Color(0xFF667085),
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null ||
+                      value.isEmpty) {
                     return 'Password is required';
                   }
 
@@ -1153,16 +1298,22 @@ class _RegisterFormState extends State<RegisterForm> {
                   return null;
                 },
               ),
+
               const SizedBox(height: 20),
+
               const AuthLabel(
                 text: 'Confirm Password',
               ),
+
               const SizedBox(height: 8),
+
               AuthTextField(
-                controller: _confirmPasswordController,
+                controller:
+                    _confirmPasswordController,
                 hintText: 'Confirm your password',
                 icon: Icons.lock_outline_rounded,
-                obscureText: _obscureConfirmPassword,
+                obscureText:
+                    _obscureConfirmPassword,
                 suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
@@ -1174,26 +1325,27 @@ class _RegisterFormState extends State<RegisterForm> {
                     _obscureConfirmPassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: const Color(0xFF667085),
+                    color:
+                        const Color(0xFF667085),
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null ||
+                      value.isEmpty) {
                     return 'Please confirm your password';
                   }
 
-                  if (value != _passwordController.text) {
+                  if (value !=
+                      _passwordController.text) {
                     return 'Passwords do not match';
                   }
 
                   return null;
                 },
               ),
+
               const SizedBox(height: 28),
 
-              // IMPORTANT:
-              // The button remains "Create Account" because that is what
-              // your current widget_test.dart expects.
               PrimaryButton(
                 text: 'Create Account',
                 loading: _loading,
@@ -1202,7 +1354,9 @@ class _RegisterFormState extends State<RegisterForm> {
             ],
           ),
         ),
+
         const SizedBox(height: 25),
+
         const Text(
           'By creating an account, you agree to our Terms of Service '
           'and Privacy Policy.',
@@ -1213,9 +1367,12 @@ class _RegisterFormState extends State<RegisterForm> {
             height: 1.4,
           ),
         ),
+
         const SizedBox(height: 30),
+
         const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
           children: [
             Icon(
               Icons.verified_user_outlined,
@@ -1286,7 +1443,8 @@ class AuthTextField extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType,
     this.textInputAction,
-    this.textCapitalization = TextCapitalization.none,
+    this.textCapitalization =
+        TextCapitalization.none,
     this.validator,
   });
 
@@ -1299,7 +1457,8 @@ class AuthTextField extends StatelessWidget {
       textInputAction: textInputAction,
       textCapitalization: textCapitalization,
       validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode:
+          AutovalidateMode.onUserInteraction,
       style: const TextStyle(
         color: Color(0xFF101828),
         fontSize: 14.5,
@@ -1320,37 +1479,44 @@ class AuthTextField extends StatelessWidget {
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(
+        contentPadding:
+            const EdgeInsets.symmetric(
           horizontal: 15,
           vertical: 17,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius:
+              BorderRadius.circular(12),
           borderSide: const BorderSide(
             color: Color(0xFFD0D5DD),
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius:
+              BorderRadius.circular(12),
           borderSide: const BorderSide(
             color: Color(0xFFD0D5DD),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius:
+              BorderRadius.circular(12),
           borderSide: const BorderSide(
             color: Color(0xFF4F46E5),
             width: 1.6,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius:
+              BorderRadius.circular(12),
           borderSide: const BorderSide(
             color: Color(0xFFEF4444),
           ),
         ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+        focusedErrorBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(12),
           borderSide: const BorderSide(
             color: Color(0xFFEF4444),
             width: 1.5,
@@ -1387,19 +1553,23 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: loading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4F46E5),
+          backgroundColor:
+              const Color(0xFF4F46E5),
           foregroundColor: Colors.white,
-          disabledBackgroundColor: const Color(0xFF818CF8),
+          disabledBackgroundColor:
+              const Color(0xFF818CF8),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(12),
           ),
         ),
         child: loading
             ? const SizedBox(
                 height: 22,
                 width: 22,
-                child: CircularProgressIndicator(
+                child:
+                    CircularProgressIndicator(
                   strokeWidth: 2.5,
                   color: Colors.white,
                 ),
@@ -1433,7 +1603,10 @@ class OrDivider extends StatelessWidget {
           ),
         ),
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14),
+          padding:
+              EdgeInsets.symmetric(
+            horizontal: 14,
+          ),
           child: Text(
             'or continue with',
             style: TextStyle(
@@ -1453,7 +1626,7 @@ class OrDivider extends StatelessWidget {
 }
 
 // ============================================================================
-// SOCIAL BUTTON
+// SOCIAL LOGIN BUTTON
 // ============================================================================
 
 class SocialLoginButton extends StatelessWidget {
@@ -1482,11 +1655,13 @@ class SocialLoginButton extends StatelessWidget {
             color: Color(0xFFD0D5DD),
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(12),
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
           children: [
             Text(
               icon,
@@ -1547,7 +1722,8 @@ class _GlowCircle extends StatelessWidget {
 // FALLBACK ILLUSTRATION
 // ============================================================================
 
-class _FallbackIllustration extends StatelessWidget {
+class _FallbackIllustration
+    extends StatelessWidget {
   const _FallbackIllustration();
 
   @override
@@ -1563,9 +1739,11 @@ class _FallbackIllustration extends StatelessWidget {
             height: 230,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF6366F1).withValues(alpha: 0.12),
+              color: const Color(0xFF6366F1)
+                  .withValues(alpha: 0.12),
             ),
           ),
+
           Positioned(
             bottom: 25,
             child: Container(
@@ -1573,33 +1751,44 @@ class _FallbackIllustration extends StatelessWidget {
               height: 150,
               decoration: BoxDecoration(
                 color: const Color(0xFF4F46E5),
-                borderRadius: BorderRadius.circular(65),
+                borderRadius:
+                    BorderRadius.circular(65),
               ),
             ),
           ),
+
           const Positioned(
             top: 45,
             child: CircleAvatar(
               radius: 45,
-              backgroundColor: Color(0xFFFFD7B5),
+              backgroundColor:
+                  Color(0xFFFFD7B5),
             ),
           ),
+
           Positioned(
             top: 30,
             child: Container(
               width: 88,
               height: 48,
-              decoration: const BoxDecoration(
+              decoration:
+                  const BoxDecoration(
                 color: Color(0xFF263238),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(45),
-                  topRight: Radius.circular(45),
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                borderRadius:
+                    BorderRadius.only(
+                  topLeft:
+                      Radius.circular(45),
+                  topRight:
+                      Radius.circular(45),
+                  bottomLeft:
+                      Radius.circular(20),
+                  bottomRight:
+                      Radius.circular(20),
                 ),
               ),
             ),
           ),
+
           Positioned(
             bottom: 5,
             child: Column(
@@ -1608,13 +1797,17 @@ class _FallbackIllustration extends StatelessWidget {
                   width: 135,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF263238),
-                    borderRadius: BorderRadius.circular(10),
+                    color:
+                        const Color(0xFF263238),
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
                   child: const Center(
                     child: Icon(
-                      Icons.all_inclusive_rounded,
-                      color: Color(0xFF818CF8),
+                      Icons
+                          .all_inclusive_rounded,
+                      color:
+                          Color(0xFF818CF8),
                       size: 42,
                     ),
                   ),
@@ -1623,13 +1816,16 @@ class _FallbackIllustration extends StatelessWidget {
                   width: 165,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Color(0xFF455A64),
-                    borderRadius: BorderRadius.circular(8),
+                    color:
+                        const Color(0xFF455A64),
+                    borderRadius:
+                        BorderRadius.circular(8),
                   ),
                 ),
               ],
             ),
           ),
+
           const Positioned(
             top: 20,
             left: 25,
@@ -1639,6 +1835,7 @@ class _FallbackIllustration extends StatelessWidget {
               size: 38,
             ),
           ),
+
           const Positioned(
             top: 65,
             right: 20,
@@ -1648,6 +1845,7 @@ class _FallbackIllustration extends StatelessWidget {
               size: 42,
             ),
           ),
+
           const Positioned(
             bottom: 65,
             right: 15,
