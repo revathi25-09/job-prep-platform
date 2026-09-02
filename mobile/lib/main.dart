@@ -591,7 +591,7 @@ class _LoginFormState extends State<LoginForm> {
     try {
       final http.Response response = await http
           .post(
-            Uri.parse(_loginUrl),
+            Uri.parse('$baseUrl/login'),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
