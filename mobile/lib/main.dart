@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'dashboard_page.dart';
+
 void main() {
   runApp(const PrepLoopApp());
 }
@@ -568,6 +570,14 @@ class _LoginFormState extends State<LoginForm> {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         _showMessage(
           data['message']?.toString() ?? 'Login successful!',
+        );
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => DashboardPage(
+              userEmail: _emailController.text.trim(),
+            ),
+          ),
         );
         return;
       }
