@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
- 
+// Coding practice is implemented below in this file.
+
 // ============================================================================
 // DASHBOARD PAGE
 //
@@ -8,34 +9,34 @@ import 'package:flutter/material.dart';
 // up to real backend endpoints once the coding judge, resume analyzer, and
 // scheduling APIs exist.
 // ============================================================================
- 
+
 enum DashboardSection { overview, coding, resume, interviews, profile }
- 
+
 class DashboardPage extends StatefulWidget {
   final String userEmail;
- 
+
   const DashboardPage({
     super.key,
     required this.userEmail,
   });
- 
+
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
- 
+
 class _DashboardPageState extends State<DashboardPage> {
   DashboardSection _selected = DashboardSection.overview;
- 
+
   void _select(DashboardSection section) {
     setState(() => _selected = section);
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final bool isMobile = constraints.maxWidth < 850;
- 
+
         if (isMobile) {
           return Scaffold(
             backgroundColor: const Color(0xFFF7F7FB),
@@ -65,7 +66,7 @@ class _DashboardPageState extends State<DashboardPage> {
             body: _DashboardBody(section: _selected),
           );
         }
- 
+
         return Scaffold(
           backgroundColor: const Color(0xFFF7F7FB),
           body: Row(
@@ -87,7 +88,7 @@ class _DashboardPageState extends State<DashboardPage> {
       },
     );
   }
- 
+
   String _titleFor(DashboardSection section) {
     switch (section) {
       case DashboardSection.overview:
@@ -103,22 +104,22 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 }
- 
+
 // ============================================================================
 // SIDEBAR
 // ============================================================================
- 
+
 class _Sidebar extends StatelessWidget {
   final String userEmail;
   final DashboardSection selected;
   final ValueChanged<DashboardSection> onSelect;
- 
+
   const _Sidebar({
     required this.userEmail,
     required this.selected,
     required this.onSelect,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -274,20 +275,20 @@ class _Sidebar extends StatelessWidget {
     );
   }
 }
- 
+
 class _SidebarItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
   final VoidCallback onTap;
- 
+
   const _SidebarItem({
     required this.icon,
     required this.label,
     required this.active,
     required this.onTap,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -340,16 +341,16 @@ class _SidebarItem extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // BODY — decorative background + switched content
 // ============================================================================
- 
+
 class _DashboardBody extends StatelessWidget {
   final DashboardSection section;
- 
+
   const _DashboardBody({required this.section});
- 
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -409,7 +410,7 @@ class _DashboardBody extends StatelessWidget {
       ],
     );
   }
- 
+
   Widget _sectionContent(DashboardSection section) {
     switch (section) {
       case DashboardSection.overview:
@@ -425,16 +426,16 @@ class _DashboardBody extends StatelessWidget {
     }
   }
 }
- 
+
 // ============================================================================
 // SHARED CARD SHELL
 // ============================================================================
- 
+
 class _DashboardCard extends StatelessWidget {
   final Widget child;
- 
+
   const _DashboardCard({required this.child});
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -456,13 +457,13 @@ class _DashboardCard extends StatelessWidget {
     );
   }
 }
- 
+
 class _SectionHeading extends StatelessWidget {
   final String title;
   final String subtitle;
- 
+
   const _SectionHeading({required this.title, required this.subtitle});
- 
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -489,14 +490,14 @@ class _SectionHeading extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // OVERVIEW SECTION
 // ============================================================================
- 
+
 class _OverviewSection extends StatelessWidget {
   const _OverviewSection();
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -509,7 +510,7 @@ class _OverviewSection extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final bool stack = constraints.maxWidth < 700;
- 
+
             if (stack) {
               return const Column(
                 children: [
@@ -521,7 +522,7 @@ class _OverviewSection extends StatelessWidget {
                 ],
               );
             }
- 
+
             return const IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -540,14 +541,14 @@ class _OverviewSection extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // CODING SECTION (full page)
 // ============================================================================
- 
+
 class _CodingSection extends StatelessWidget {
   const _CodingSection();
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -557,38 +558,22 @@ class _CodingSection extends StatelessWidget {
           title: 'Coding Practice',
           subtitle: 'Browse problems and track your submissions.',
         ),
-        _DashboardCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text(
-                'Problem list coming soon',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-              ),
-              SizedBox(height: 6),
-              Text(
-                'This screen will list problems by topic and difficulty '
-                'once the judge system is built.',
-                style: TextStyle(color: Color(0xFF667085), fontSize: 13.5),
-              ),
-            ],
-          ),
-        ),
+        const _CodingProblemsList(),
       ],
     );
   }
 }
- 
+
 class _CodingProgressCard extends StatelessWidget {
   const _CodingProgressCard();
- 
+
   @override
   Widget build(BuildContext context) {
     // TODO: replace with real values from GET /progress.
     const int solved = 0;
     const int total = 50;
     const double ratio = total == 0 ? 0 : solved / total;
- 
+
     return _DashboardCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -648,13 +633,13 @@ class _CodingProgressCard extends StatelessWidget {
     );
   }
 }
- 
+
 class _StatChip extends StatelessWidget {
   final String label;
   final String value;
- 
+
   const _StatChip({required this.label, required this.value});
- 
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -672,14 +657,14 @@ class _StatChip extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // RESUME SECTION
 // ============================================================================
- 
+
 class _ResumeSection extends StatelessWidget {
   const _ResumeSection();
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -694,14 +679,14 @@ class _ResumeSection extends StatelessWidget {
     );
   }
 }
- 
+
 class _ResumeCard extends StatelessWidget {
   const _ResumeCard();
- 
+
   @override
   Widget build(BuildContext context) {
-    const bool resumeUploaded = false;
- 
+    bool resumeUploaded = false;
+
     return _DashboardCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -757,14 +742,14 @@ class _ResumeCard extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // INTERVIEWS SECTION
 // ============================================================================
- 
+
 class _InterviewsSection extends StatelessWidget {
   const _InterviewsSection();
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -779,14 +764,14 @@ class _InterviewsSection extends StatelessWidget {
     );
   }
 }
- 
+
 class _InterviewsCard extends StatelessWidget {
   const _InterviewsCard();
- 
+
   @override
   Widget build(BuildContext context) {
     const List<Map<String, String>> sessions = [];
- 
+
     return _DashboardCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -843,14 +828,14 @@ class _InterviewsCard extends StatelessWidget {
     );
   }
 }
- 
+
 // ============================================================================
 // PROFILE SECTION
 // ============================================================================
- 
+
 class _ProfileSection extends StatelessWidget {
   const _ProfileSection();
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -881,17 +866,131 @@ class _ProfileSection extends StatelessWidget {
     );
   }
 }
- 
+
+// ============================================================================
+// CODING PROBLEMS LIST
+// ============================================================================
+
+class _CodingProblemsList extends StatelessWidget {
+  const _CodingProblemsList();
+
+  static const List<Map<String, String>> problems = [
+    {'title': 'Two Sum', 'difficulty': 'Easy'},
+    {'title': 'Reverse Array', 'difficulty': 'Easy'},
+    {'title': 'Valid Parentheses', 'difficulty': 'Easy'},
+    {'title': 'Binary Search', 'difficulty': 'Medium'},
+    {'title': 'Longest Substring Without Repeating Characters', 'difficulty': 'Medium'},
+    {'title': 'Merge Intervals', 'difficulty': 'Medium'},
+    {'title': 'Maximum Subarray', 'difficulty': 'Medium'},
+    {'title': 'Trapping Rain Water', 'difficulty': 'Hard'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return _DashboardCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Practice Problems',
+            style: TextStyle(
+              fontSize: 16.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Choose a problem and start practicing.',
+            style: TextStyle(fontSize: 13.5, color: Color(0xFF667085)),
+          ),
+          const SizedBox(height: 18),
+          ...problems.map(
+            (problem) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7F7FB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFF0F1F5)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4F46E5).withOpacity(0.10),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: const Icon(
+                        Icons.code_rounded,
+                        color: Color(0xFF4F46E5),
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        problem['title']!,
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF111827),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: problem['difficulty'] == 'Easy'
+                            ? const Color(0xFFEFFBF3)
+                            : problem['difficulty'] == 'Medium'
+                                ? const Color(0xFFFFF7E8)
+                                : const Color(0xFFFFEEEE),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        problem['difficulty']!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: problem['difficulty'] == 'Easy'
+                              ? const Color(0xFF15803D)
+                              : problem['difficulty'] == 'Medium'
+                                  ? const Color(0xFFD97706)
+                                  : const Color(0xFFDC2626),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: Color(0xFF98A2B3),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ============================================================================
 // GLOW CIRCLE
 // ============================================================================
- 
+
 class _GlowCircle extends StatelessWidget {
   final double size;
   final Color color;
- 
+
   const _GlowCircle({required this.size, required this.color});
- 
+
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
