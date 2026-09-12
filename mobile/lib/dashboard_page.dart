@@ -700,43 +700,67 @@ class _ResumeCard extends StatelessWidget {
                   color: const Color(0xFF16A34A).withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.description_outlined, color: Color(0xFF16A34A), size: 20),
+                child: const Icon(
+                  Icons.description_outlined,
+                  color: Color(0xFF16A34A),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
                 'Resume Analyzer',
-                style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700, color: Color(0xFF111827)),
+                style: TextStyle(
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF111827),
+                ),
               ),
             ],
           ),
+
           const SizedBox(height: 18),
-          if (!resumeUploaded) ...[
-            const Text(
-              'No resume uploaded yet. Upload one to get a match score '
-              'against job descriptions.',
-              style: TextStyle(fontSize: 13.5, color: Color(0xFF667085), height: 1.4),
+
+          const Text(
+            'No resume uploaded yet. Upload one to get a match score '
+            'against job descriptions.',
+            style: TextStyle(
+              fontSize: 13.5,
+              color: Color(0xFF667085),
+              height: 1.4,
             ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.upload_file_rounded, size: 18),
-                label: const Text('Upload Resume', style: TextStyle(fontWeight: FontWeight.w700)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // Resume upload will be implemented here.
+              },
+              icon: const Icon(
+                Icons.upload_file_rounded,
+                size: 18,
+              ),
+              label: const Text(
+                'Upload Resume',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF16A34A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 13,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
-          ] else ...[
-            const Text('Latest match score', style: TextStyle(fontSize: 12.5, color: Color(0xFF667085))),
-            const SizedBox(height: 4),
-            const Text('—%', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: Color(0xFF111827))),
-          ],
+          ),
         ],
       ),
     );
