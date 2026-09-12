@@ -1,11 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dashboard_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: 'https://nidzrwywfibagahhycnm.supabase.co',
+    publishableKey: 'sb_publishable_SGn_GzMKscB0g9BM599Saw_VQD9VmrI',
+  );
+
   runApp(const PrepLoopApp());
 }
 
@@ -512,18 +516,6 @@ class _LoginFormState extends State<LoginForm> {
   bool _rememberMe = false;
   bool _loading = false;
 
-  // --------------------------------------------------------------------------
-  // BACKEND URL
-  //
-  // For Flutter Web/Desktop:
-  // localhost normally works when your backend is running on this computer.
-  //
-  // For Android Emulator:
-  // use 10.0.2.2 instead of localhost.
-  // --------------------------------------------------------------------------
-
-  static const String _loginUrl = 'http://localhost:5000/login';
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -531,120 +523,66 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    FocusScope.of(context).unfocus();
+  // --------------------------------------------------------------------------
+  // LOGIN
+  // --------------------------------------------------------------------------
 
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+  Future<void> _login() async {
+  FocusScope.of(context).unfocus();
+
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
+
+  setState(() {
+    _loading = true;
+  });
+
+  try {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    final response =
+        await Supabase.instance.client.auth.signInWithPassword(
+      email: email,
+      password: password,
+    );
+
+    if (!mounted) return;
 
     setState(() {
-      _loading = true;
+      _loading = false;
     });
 
-    try {
-      final http.Response response = await http
-          .post(
-            Uri.parse(_loginUrl),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: jsonEncode({
-              'email': _emailController.text.trim(),
-              'password': _passwordController.text,
-            }),
-          )
-          .timeout(
-            const Duration(seconds: 10),
-          );
+    if (response.user != null) {
+      _showMessage('Login successful!');
 
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      final Map<String, dynamic> data = _decodeResponse(response.body);
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        _showMessage(
-          data['message']?.toString() ?? 'Login successful!',
-        );
-
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => DashboardPage(
-              userEmail: _emailController.text.trim(),
-            ),
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(
+            userEmail: email,
           ),
-        );
-        return;
-      }
-
-      // IMPORTANT:
-      // Show the actual backend response instead of hiding it
-      // behind only "Login failed".
-      final String message = data['message']?.toString().isNotEmpty == true
-          ? data['message'].toString()
-          : response.body.isNotEmpty
-              ? response.body
-              : 'Server returned status ${response.statusCode}.';
-
-      _showMessage(
-        'Login failed (${response.statusCode}): $message',
-      );
-    } on http.ClientException catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Could not connect to server.\n$error',
-      );
-    } on FormatException {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Server returned an invalid response.',
-      );
-    } catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Login error: $error',
+        ),
       );
     }
+  } on AuthException catch (error) {
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+    });
+
+    _showMessage(error.message);
+  } catch (error) {
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+    });
+
+    _showMessage('Login error: $error');
   }
-
-  Map<String, dynamic> _decodeResponse(String body) {
-    if (body.trim().isEmpty) {
-      return {};
-    }
-
-    try {
-      final dynamic decoded = jsonDecode(body);
-
-      if (decoded is Map<String, dynamic>) {
-        return decoded;
-      }
-
-      return {};
-    } catch (_) {
-      return {};
-    }
-  }
-
+}
   void _showMessage(String message) {
     if (!mounted) return;
 
@@ -900,7 +838,6 @@ class _RegisterFormState extends State<RegisterForm> {
   bool _obscureConfirmPassword = true;
   bool _loading = false;
 
-  static const String _registerUrl = 'http://localhost:5000/register';
 
   @override
   void dispose() {
@@ -911,121 +848,67 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
-  Future<void> _register() async {
-    FocusScope.of(context).unfocus();
+Future<void> _register() async {
+  FocusScope.of(context).unfocus();
 
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+  if (!_formKey.currentState!.validate()) {
+    return;
+  }
+
+  setState(() {
+    _loading = true;
+  });
+
+  try {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    final response =
+        await Supabase.instance.client.auth.signUp(
+      email: email,
+      password: password,
+      data: {
+        'name': name,
+      },
+    );
+
+    if (!mounted) return;
 
     setState(() {
-      _loading = true;
+      _loading = false;
     });
 
-    try {
-      final http.Response response = await http
-          .post(
-            Uri.parse(_registerUrl),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-            body: jsonEncode({
-              'name': _nameController.text.trim(),
-              'email': _emailController.text.trim(),
-              'password': _passwordController.text,
-            }),
-          )
-          .timeout(
-            const Duration(seconds: 10),
-          );
+    if (response.user != null) {
+      _showMessage('Account created successfully!');
 
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      final Map<String, dynamic> data = _decodeResponse(response.body);
-
-      if (response.statusCode >= 200 &&
-          response.statusCode < 300) {
-        _showMessage(
-          data['message']?.toString() ?? 'Registration successful!',
-        );
-
-        Future.delayed(
-          const Duration(milliseconds: 800),
-          () {
-            if (mounted) {
-              widget.onLogin();
-            }
-          },
-        );
-
-        return;
-      }
-
-      final String message =
-          data['message']?.toString().isNotEmpty == true
-              ? data['message'].toString()
-              : response.body.isNotEmpty
-                  ? response.body
-                  : 'Server returned status ${response.statusCode}.';
-
-      _showMessage(
-        'Registration failed (${response.statusCode}): $message',
-      );
-    } on http.ClientException catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Could not connect to server.\n$error',
-      );
-    } on FormatException {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Server returned an invalid response.',
-      );
-    } catch (error) {
-      if (!mounted) return;
-
-      setState(() {
-        _loading = false;
-      });
-
-      _showMessage(
-        'Registration error: $error',
+      Future.delayed(
+        const Duration(milliseconds: 800),
+        () {
+          if (mounted) {
+            widget.onLogin();
+          }
+        },
       );
     }
+  } on AuthException catch (error) {
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+    });
+
+    _showMessage(error.message);
+  } catch (error) {
+    if (!mounted) return;
+
+    setState(() {
+      _loading = false;
+    });
+
+    _showMessage('Registration error: $error');
   }
-
-  Map<String, dynamic> _decodeResponse(String body) {
-    if (body.trim().isEmpty) {
-      return {};
-    }
-
-    try {
-      final dynamic decoded = jsonDecode(body);
-
-      if (decoded is Map<String, dynamic>) {
-        return decoded;
-      }
-
-      return {};
-    } catch (_) {
-      return {};
-    }
-  }
+}
 
   void _showMessage(String message) {
     if (!mounted) return;
