@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../../core/supabase_client.dart';
 import '../auth/login_page.dart';
@@ -10,23 +11,30 @@ import '../progress/progress_page.dart';
 class DashboardPage extends StatefulWidget {
   final String userEmail;
 
-  const DashboardPage({super.key, required this.userEmail});
+  const DashboardPage({
+    super.key,
+    required this.userEmail,
+  });
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  static const Color navy = Color(0xFF142653);
-  static const Color blue = Color(0xFF365CF5);
-  static const Color background = Color(0xFFF5F7FC);
+  static const Color navy = Color(0xFF202B55);
+  static const Color purple = Color(0xFF7167E8);
+  static const Color background = Color(0xFFF6F7FB);
+  static const Color muted = Color(0xFF858BA3);
+  static const Color border = Color(0xFFEAECF3);
 
   int _selectedIndex = 0;
 
   String get _userName {
     final email = widget.userEmail.trim();
     if (email.isEmpty) return 'Learner';
-    return email.split('@').first;
+
+    final name = email.split('@').first;
+    return name.isEmpty ? 'Learner' : name;
   }
 
   void _navigateTo(int index) {
@@ -52,7 +60,9 @@ class _DashboardPageState extends State<DashboardPage> {
       context,
       MaterialPageRoute(builder: (_) => page),
     ).then((_) {
-      if (mounted) setState(() => _selectedIndex = 0);
+      if (mounted) {
+        setState(() => _selectedIndex = 0);
+      }
     });
   }
 
@@ -63,7 +73,9 @@ class _DashboardPageState extends State<DashboardPage> {
       if (!mounted) return;
 
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
+        MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ),
         (route) => false,
       );
     } catch (e) {
@@ -103,7 +115,10 @@ class _DashboardPageState extends State<DashboardPage> {
                               'Choose a module and keep moving forward.',
                             ),
                             const SizedBox(height: 18),
-                            _buildModuleGrid(constraints.maxWidth, desktop),
+                            _buildModuleGrid(
+                              constraints.maxWidth -
+                                  (desktop ? 255 : 0),
+                            ),
                             const SizedBox(height: 28),
                             _buildTipCard(),
                             const SizedBox(height: 24),
@@ -128,6 +143,8 @@ class _DashboardPageState extends State<DashboardPage> {
           bottomNavigationBar: desktop
               ? null
               : NavigationBar(
+                  backgroundColor: Colors.white,
+                  indicatorColor: const Color(0xFFECE9FF),
                   selectedIndex: _selectedIndex,
                   onDestinationSelected: _navigateTo,
                   destinations: const [
@@ -161,9 +178,12 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildSidebar() {
     return Container(
-      width: 245,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+      width: 255,
+      color: navy,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 28,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -172,60 +192,111 @@ class _DashboardPageState extends State<DashboardPage> {
           const Padding(
             padding: EdgeInsets.only(left: 12, bottom: 12),
             child: Text(
-              'LEARNING MENU',
+              'WORKSPACE',
               style: TextStyle(
-                color: Colors.blueGrey,
+                color: Color(0xFF9DA7CA),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
+                letterSpacing: 1.5,
               ),
             ),
           ),
-          _sidebarItem(Icons.grid_view_rounded, 'Dashboard', 0),
-          _sidebarItem(Icons.code_rounded, 'Coding Practice', 1),
-          _sidebarItem(Icons.description_outlined, 'Resume Analyzer', 2),
-          _sidebarItem(Icons.record_voice_over_rounded, 'Mock Interviews', 3),
-          _sidebarItem(Icons.insights_rounded, 'My Progress', 4),
-          _sidebarItem(Icons.person_outline_rounded, 'My Profile', 5),
+          _sidebarItem(
+            Icons.grid_view_rounded,
+            'Dashboard',
+            0,
+          ),
+          _sidebarItem(
+            Icons.code_rounded,
+            'Coding Practice',
+            1,
+          ),
+          _sidebarItem(
+            Icons.description_outlined,
+            'Resume Analyzer',
+            2,
+          ),
+          _sidebarItem(
+            Icons.record_voice_over_rounded,
+            'Mock Interviews',
+            3,
+          ),
+          _sidebarItem(
+            Icons.insights_rounded,
+            'My Progress',
+            4,
+          ),
+          _sidebarItem(
+            Icons.person_outline_rounded,
+            'My Profile',
+            5,
+          ),
           const Spacer(),
           Container(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F3FF),
+              color: const Color(0xFF303C68),
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.07),
+              ),
             ),
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.rocket_launch_rounded, color: blue, size: 27),
-                SizedBox(height: 10),
+                Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Color(0xFFB9B0FF),
+                  size: 28,
+                ),
+                SizedBox(height: 12),
                 Text(
-                  'Your next chapter starts here.',
+                  'Keep growing!',
                   style: TextStyle(
-                    color: navy,
+                    color: Colors.white,
                     fontWeight: FontWeight.w700,
+                    fontSize: 14,
                   ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 7),
                 Text(
-                  'Practice a little every day.',
-                  style: TextStyle(fontSize: 12, color: Colors.blueGrey),
+                  'Build your skills one step at a time.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFFD1D6EB),
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          TextButton.icon(
-            onPressed: _signOut,
-            icon: const Icon(Icons.logout_rounded),
-            label: const Text('Sign out'),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton.icon(
+              onPressed: _signOut,
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFD6DAE9),
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+              ),
+              icon: const Icon(Icons.logout_rounded, size: 20),
+              label: const Text('Sign out'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _sidebarItem(IconData icon, String label, int index) {
+  Widget _sidebarItem(
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final selected = _selectedIndex == index;
 
     return Padding(
@@ -234,16 +305,21 @@ class _DashboardPageState extends State<DashboardPage> {
         borderRadius: BorderRadius.circular(12),
         onTap: () => _navigateTo(index),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 14,
+          ),
           decoration: BoxDecoration(
-            color: selected ? const Color(0xFFEDF1FF) : Colors.transparent,
+            color: selected ? purple : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
               Icon(
                 icon,
-                color: selected ? blue : Colors.blueGrey.shade600,
+                color: selected
+                    ? Colors.white
+                    : const Color(0xFFB8C0DC),
                 size: 21,
               ),
               const SizedBox(width: 12),
@@ -251,8 +327,12 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: selected ? blue : navy,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                    color: selected
+                        ? Colors.white
+                        : const Color(0xFFD6DAE9),
+                    fontWeight: selected
+                        ? FontWeight.w700
+                        : FontWeight.w500,
                     fontSize: 13,
                   ),
                 ),
@@ -265,20 +345,27 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildLogo() {
-    return const Row(
-      children: [
-        Icon(Icons.bolt_rounded, color: blue, size: 35),
-        SizedBox(width: 5),
-        Text(
-          'PrepLoop',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -1,
-            color: navy,
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        children: [
+          Icon(
+            Icons.bolt_rounded,
+            color: Color(0xFFB9B0FF),
+            size: 35,
           ),
-        ),
-      ],
+          SizedBox(width: 7),
+          Text(
+            'PrepLoop',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -1,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -290,49 +377,59 @@ class _DashboardPageState extends State<DashboardPage> {
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Color(0xFFEAEDF4))),
+        border: Border(
+          bottom: BorderSide(color: border),
+        ),
       ),
       child: Row(
         children: [
-          if (!desktop) ...[
-            _buildLogo(),
-          ] else ...[
+          if (!desktop)
+            Flexible(
+              child: _buildLogoForMobile(),
+            )
+          else
             const Text(
               'Dashboard',
               style: TextStyle(
                 color: navy,
                 fontWeight: FontWeight.w800,
-                fontSize: 19,
+                fontSize: 21,
               ),
             ),
-          ],
           const Spacer(),
           if (desktop)
             Flexible(
               child: Text(
                 widget.userEmail,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.blueGrey, fontSize: 13),
+                textAlign: TextAlign.end,
+                style: const TextStyle(
+                  color: muted,
+                  fontSize: 13,
+                ),
               ),
             ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           CircleAvatar(
-            radius: 19,
-            backgroundColor: const Color(0xFFE9EEFF),
+            radius: 20,
+            backgroundColor: const Color(0xFFECE9FF),
             child: Text(
-              _userName.isNotEmpty ? _userName[0].toUpperCase() : 'L',
+              _userName[0].toUpperCase(),
               style: const TextStyle(
-                color: blue,
+                color: purple,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
           if (!desktop) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
             IconButton(
               tooltip: 'Sign out',
               onPressed: _signOut,
-              icon: const Icon(Icons.logout_rounded),
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: navy,
+              ),
             ),
           ],
         ],
@@ -340,21 +437,51 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  Widget _buildLogoForMobile() {
+    return const Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.bolt_rounded,
+          color: purple,
+          size: 30,
+        ),
+        SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            'PrepLoop',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              letterSpacing: -0.8,
+              color: navy,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildWelcomeBanner(bool desktop) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(desktop ? 30 : 22),
+      padding: EdgeInsets.all(desktop ? 32 : 23),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF3157E8), Color(0xFF687AFB)],
+          colors: [
+            navy,
+            Color(0xFF5147A8),
+            purple,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: blue.withValues(alpha: 0.18),
-            blurRadius: 22,
+            color: purple.withValues(alpha: 0.16),
+            blurRadius: 24,
             offset: const Offset(0, 10),
           ),
         ],
@@ -367,7 +494,7 @@ class _DashboardPageState extends State<DashboardPage> {
             child: Icon(
               Icons.auto_awesome_rounded,
               size: desktop ? 150 : 90,
-              color: Colors.white.withValues(alpha: 0.10),
+              color: Colors.white.withValues(alpha: 0.09),
             ),
           ),
           Column(
@@ -375,11 +502,11 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 11,
-                  vertical: 6,
+                  horizontal: 12,
+                  vertical: 7,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
+                  color: Colors.white.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: const Text(
@@ -388,46 +515,58 @@ class _DashboardPageState extends State<DashboardPage> {
                     color: Colors.white,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 1,
+                    letterSpacing: 1.2,
                   ),
                 ),
               ),
-              const SizedBox(height: 17),
+              const SizedBox(height: 18),
               Text(
                 'Welcome back, $_userName!',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: desktop ? 30 : 24,
+                  fontSize: desktop ? 31 : 25,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.7,
                 ),
               ),
-              const SizedBox(height: 9),
+              const SizedBox(height: 10),
               const Text(
-                'Build skills. Practice with purpose.\nGet ready for your next opportunity.',
+                'Build skills. Practice with purpose.\n'
+                'Get ready for your next opportunity.',
                 style: TextStyle(
-                  color: Color(0xFFE9EDFF),
-                  height: 1.6,
+                  color: Color(0xFFE9E5FF),
+                  height: 1.7,
                   fontSize: 14,
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 24),
               FilledButton(
                 onPressed: () => _navigateTo(1),
                 style: FilledButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: blue,
+                  foregroundColor: purple,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 19,
-                    vertical: 14,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Start practicing'),
-                    SizedBox(width: 9),
-                    Icon(Icons.arrow_forward_rounded, size: 18),
+                    Text(
+                      'Start practicing',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                    ),
                   ],
                 ),
               ),
@@ -438,7 +577,10 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildSectionHeading(String title, String subtitle) {
+  Widget _buildSectionHeading(
+    String title,
+    String subtitle,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -451,11 +593,11 @@ class _DashboardPageState extends State<DashboardPage> {
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 7),
         Text(
           subtitle,
-          style: TextStyle(
-            color: Colors.blueGrey.shade600,
+          style: const TextStyle(
+            color: muted,
             fontSize: 13,
           ),
         ),
@@ -463,41 +605,44 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildModuleGrid(double width, bool desktop) {
+  Widget _buildModuleGrid(double width) {
     const modules = [
       _Module(
         title: 'Coding Practice',
-        description: 'Solve programming challenges and strengthen your logic.',
+        description:
+            'Solve programming challenges and strengthen your logic.',
         icon: Icons.code_rounded,
-        color:  Color(0xFF4263EB),
-        tint: Color(0xFFEDF1FF),
+        color: Color(0xFF7167E8),
+        tint: Color(0xFFECE9FF),
         index: 1,
         tag: 'PRACTICE',
       ),
       _Module(
         title: 'Resume Analyzer',
-        description: 'Upload your resume and keep track of your submissions.',
+        description:
+            'Upload your resume and improve your career profile.',
         icon: Icons.description_outlined,
-        color: Color(0xFF0C9A82),
-        tint:  Color(0xFFE5F8F3),
+        color: Color(0xFF159B83),
+        tint: Color(0xFFE5F8F3),
         index: 2,
         tag: 'CAREER',
       ),
       _Module(
         title: 'Mock Interviews',
         description:
-            'Prepare for interviews and review your practice sessions.',
+            'Prepare for interviews and build your confidence.',
         icon: Icons.record_voice_over_rounded,
-        color:  Color(0xFF9254DE),
+        color: Color(0xFF9254DE),
         tint: Color(0xFFF3EAFE),
         index: 3,
         tag: 'PREPARE',
       ),
       _Module(
         title: 'Track Progress',
-        description: 'Review your learning activity and completed work.',
+        description:
+            'Review your learning activity and completed work.',
         icon: Icons.insights_rounded,
-        color:  Color(0xFFE58A22),
+        color: Color(0xFFD38B39),
         tint: Color(0xFFFFF2E1),
         index: 4,
         tag: 'YOUR GROWTH',
@@ -527,14 +672,14 @@ class _DashboardPageState extends State<DashboardPage> {
           borderRadius: BorderRadius.circular(20),
           onTap: () => _navigateTo(module.index),
           child: Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(21),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFEBEEF6)),
+              border: Border.all(color: border),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF263B6A).withValues(alpha: 0.035),
+                  color: navy.withValues(alpha: 0.035),
                   blurRadius: 18,
                   offset: const Offset(0, 7),
                 ),
@@ -546,8 +691,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 Row(
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 49,
+                      height: 49,
                       decoration: BoxDecoration(
                         color: module.tint,
                         borderRadius: BorderRadius.circular(15),
@@ -566,23 +711,23 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 17),
+                const SizedBox(height: 18),
                 Text(
                   module.title,
                   style: const TextStyle(
                     color: navy,
                     fontWeight: FontWeight.w800,
-                    fontSize: 16,
+                    fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Expanded(
                   child: Text(
                     module.description,
-                    style: TextStyle(
-                      color: Colors.blueGrey.shade600,
+                    style: const TextStyle(
+                      color: muted,
                       fontSize: 12,
-                      height: 1.5,
+                      height: 1.6,
                     ),
                   ),
                 ),
@@ -605,15 +750,22 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildTipCard() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(21),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF0FF),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFECE9FF),
+        borderRadius: BorderRadius.circular(19),
+        border: Border.all(
+          color: const Color(0xFFDDD8FF),
+        ),
       ),
       child: const Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline_rounded, color: blue, size: 29),
+          Icon(
+            Icons.lightbulb_outline_rounded,
+            color: purple,
+            size: 29,
+          ),
           SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -627,12 +779,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     fontSize: 14,
                   ),
                 ),
-                SizedBox(height: 6),
+                SizedBox(height: 7),
                 Text(
-                  'Choose one learning activity today and keep building your skills.',
+                  'Choose one learning activity today and keep '
+                  'building your skills.',
                   style: TextStyle(
-                    color: Color(0xFF586A91),
-                    height: 1.5,
+                    color: Color(0xFF58618A),
+                    height: 1.6,
                     fontSize: 12,
                   ),
                 ),

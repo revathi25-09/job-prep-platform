@@ -177,7 +177,7 @@ packages:
     source: hosted
     version: "2.7.1"
   gotrue:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: gotrue
       sha256: cd73a6de4198baca71341177bed233673d7965aca2a0257ab5561feb2abdaf59
